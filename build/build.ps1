@@ -36,23 +36,25 @@ Add-Type -As System.IO.Compression.FileSystem
     "Optimal", 
     $false)
 
-# if($pushPackage)
-# {
-#     $tag = "v$version"
-#     git tag $tag ; git push --tags
-#     ..\..\build\tools\github-release.exe release `
-#                                --user naeemkhedarun `
-#                                --repo OctoSearch `
-#                                --tag $tag
+if($pushPackage)
+{
+    $tag = "v$version"
+    git tag $tag ; git push --tags
+    ..\..\build\tools\github-release.exe release `
+                               --user naeemkhedarun `
+                               --repo OctoSearch `
+                               --tag $tag
     
-#     ..\..\build\tools\github-release.exe upload `
-#                                --user naeemkhedarun `
-#                                --repo OctoSearch `
-#                                --tag $tag `
-#                                --name "windows-x64-octosearch-$version" `
-#                                --file $zipPath
+    Start-Sleep -Seconds 5;
 
-#     nuget push OctoSearch*.nupkg -Source https://www.nuget.org/api/v2/package
-# }
+    ..\..\build\tools\github-release.exe upload `
+                               --user naeemkhedarun `
+                               --repo OctoSearch `
+                               --tag $tag `
+                               --name "windows-x64-octosearch-$version" `
+                               --file $zipPath
+
+    nuget push OctoSearch*.nupkg -Source https://www.nuget.org/api/v2/package
+}
 
 popd

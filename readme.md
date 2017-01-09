@@ -5,6 +5,8 @@
 OctoSearch is a command line tool that downloads variable sets from Octopus, caches them locally and
 allows you to search through the command line or a generated html single page application.
 
+![html report](wiki/images/html-report.png)
+
 # Installation
 
 OctoSearch itself is a package available from [nuget](https://www.nuget.org/packages/OctoSearch/). It has been compiled 
