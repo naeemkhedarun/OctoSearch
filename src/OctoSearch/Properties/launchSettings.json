@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "OctoSearch": {
+      "commandName": "Project",
+      "commandLineArgs": "search -o results.html -f html -r \\w."
+    }
+  }
+}

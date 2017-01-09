@@ -1,0 +1,103 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>OctoSearch - Search variables in Octopus</title>
+
+    <link rel='stylesheet prefetch' href='https://cdnjs.cloudflare.com/ajax/libs/m8tro-bootstrap/3.3.7/m8tro.min.css'>
+</head>
+
+<body>
+    <style>
+        body {
+            color: black;
+            background-color: white;
+        }
+    </style>
+
+<div id="model" class="container">
+
+    <h1>OctoSearch</h1>
+
+    <input rv-value="model.search" class="form-control" id="focusedInput" type="text" placeHolder="Search...">
+
+    <div id="variables" class="row" rv-each-variable="model.variables | filterBySearch model.search">
+        <div class="col-md-12">
+            <h4>{ variable.VariableSet.Name }</h4>
+
+            <div>
+                <table class="table small">
+                    <tr rv-each-v="variable.Variables | filterBySearch model.search">
+                        <td>{ v.Name }</td>
+                        <td class="pull-right">{ v.Value | trim }
+                            <button type="button" style="background-color: white; border: 0;" class="btn btn-default btn-xs" rv-data-clipboard-text="v.Value">
+                                <i class="fa fa-clipboard" aria-hidden="true"></i>
+                            </button>
+                        </td>
+                    </tr>
+                </table>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/rivets/0.9.6/rivets.bundled.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.16.4/lodash.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.5.16/clipboard.min.js"></script>
+<script src="https://use.fontawesome.com/6215fc0787.js"></script>
+
+<script>
+    var results = @@data@@;
+
+    rivets.formatters.filterBySearch = function (stuff, searchText) {
+        var searchRegex = new RegExp(searchText, "i");
+
+        return _.filter(stuff, function (variable) {
+
+            if (variable.VariableSet) {
+                var matched = _.some(variable.Variables, function (v) {
+                    return v.Name.match(searchRegex) || (v.Value && v.Value.match(searchRegex));
+                });
+
+                return matched || variable.VariableSet.Name.match(searchRegex);
+            }
+            else {
+                return variable.Name.match(searchRegex) || (variable.Value && variable.Value.match(searchRegex));
+            }
+
+        });
+    };
+
+    var model = {
+        variables: results,
+        search: ""
+    }
+
+    rivets.formatters.trim = function (value) {
+        return _.truncate(value, { length: 50 });
+    }
+
+    rivets.bind($('#model'), {
+        model: model
+    });
+
+    var clipboard = new Clipboard('.btn');
+
+    clipboard.on('success', function (e) {
+        console.info('Action:', e.action);
+        console.info('Text:', e.text);
+        console.info('Trigger:', e.trigger);
+
+        e.clearSelection();
+    });
+
+    clipboard.on('error', function (e) {
+        console.error('Action:', e.action);
+        console.error('Trigger:', e.trigger);
+    });
+</script>
+
+</body>
+</html>

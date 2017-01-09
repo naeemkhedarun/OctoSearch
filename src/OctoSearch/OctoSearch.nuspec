@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>OctoSearch</id>
+    <version>$version$</version>
+    <authors>Naeem Khedarun</authors>
+    <owners>Naeem Khedarun</owners>
+    <projectUrl>http://github.com/naeemkhedarun/octosearch</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Tool for downloading and searching octopus variables.</description>
+    <copyright>Copyright 2016</copyright>
+    <tags>octopus search</tags>
+  </metadata>
+  <files>
+    <file src="bin\Release\netcoreapp1.1\win7-x64\publish\**" target="tools\" />
+  </files>
+</package>
