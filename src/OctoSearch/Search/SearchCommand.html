@@ -15,89 +15,90 @@
         }
     </style>
 
-<div id="model" class="container">
+    <div id="model" class="container">
 
-    <h1>OctoSearch</h1>
+        <h1>OctoSearch</h1>
 
-    <input rv-value="model.search" class="form-control" id="focusedInput" type="text" placeHolder="Search...">
+        <input rv-value="model.search" class="form-control" id="focusedInput" type="text" placeHolder="Search..." rv-on-input="model.searchChanged">
 
-    <div id="variables" class="row" rv-each-variable="model.variables | filterBySearch model.search">
-        <div class="col-md-12">
-            <h4>{ variable.VariableSet.Name }</h4>
+        <div id="variables" class="row" rv-each-variable="model.variables" rv-class-hidden="variable.Variables | hideList model.searchRegex">
+            <div class="col-md-12">
+                <h4>{ variable.VariableSet.Name }</h4>
 
-            <div>
-                <table class="table small">
-                    <tr rv-each-v="variable.Variables | filterBySearch model.search">
-                        <td>{ v.Name }</td>
-                        <td class="pull-right">{ v.Value | trim }
-                            <button type="button" style="background-color: white; border: 0;" class="btn btn-default btn-xs" rv-data-clipboard-text="v.Value">
-                                <i class="fa fa-clipboard" aria-hidden="true"></i>
-                            </button>
-                        </td>
-                    </tr>
-                </table>
-
+                <div>
+                    <table class="table small">
+                        <tr rv-each-v="variable.Variables" rv-class-hidden="v | filterBySearch model.searchRegex">
+                            <td>{ v.Name }</td>
+                            <td class="pull-right">
+                                { v | trimOrStar }
+                                <button type="button" style="background-color: white; border: 0;" class="btn btn-default btn-xs" rv-data-clipboard-text="v.Value">
+                                    <i class="fa fa-clipboard" aria-hidden="true"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/rivets/0.9.6/rivets.bundled.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.16.4/lodash.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.5.16/clipboard.min.js"></script>
-<script src="https://use.fontawesome.com/6215fc0787.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/rivets/0.9.6/rivets.bundled.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.16.4/lodash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.5.16/clipboard.min.js"></script>
+    <script src="https://use.fontawesome.com/6215fc0787.js"></script>
 
-<script>
-    var results = @@data@@;
+    <script>
+        var results = @@data@@;
 
-    rivets.formatters.filterBySearch = function (stuff, searchText) {
-        var searchRegex = new RegExp(searchText, "i");
+        rivets.formatters.filterBySearch = function (stuff, searchRegex) {
+            stuff.Hide = !stuff.Name.match(searchRegex) && !(!stuff.IsSensitive && stuff.Value != null && stuff.Value.match(searchRegex));
+            return stuff.Hide;
+        };
 
-        return _.filter(stuff, function (variable) {
+        rivets.formatters.hideList = function (list) {
+            return _.every(list, function (x) {
+                return x.Hide;
+            });
+        };
 
-            if (variable.VariableSet) {
-                var matched = _.some(variable.Variables, function (v) {
-                    return v.Name.match(searchRegex) || (v.Value && v.Value.match(searchRegex));
-                });
-
-                return matched || variable.VariableSet.Name.match(searchRegex);
+        var model = {
+            variables: results,
+            search: "",
+            searchChanged: function (e, x) {
+                setTimeout(function () {
+                    x.model.searchRegex = new RegExp(x.model.search, "i");
+                }, 1000);
             }
-            else {
-                return variable.Name.match(searchRegex) || (variable.Value && variable.Value.match(searchRegex));
-            }
+        }
 
+        rivets.formatters.trimOrStar = function (value) {
+            if (value.IsSensitive) {
+                return "************"
+            } else {
+                return _.truncate(value.Value, { length: 50 });
+            }
+        }
+
+        rivets.bind($('#model'), {
+            model: model
         });
-    };
 
-    var model = {
-        variables: results,
-        search: ""
-    }
+        var clipboard = new Clipboard('.btn');
 
-    rivets.formatters.trim = function (value) {
-        return _.truncate(value, { length: 50 });
-    }
+        clipboard.on('success', function (e) {
+            console.info('Action:', e.action);
+            console.info('Text:', e.text);
+            console.info('Trigger:', e.trigger);
 
-    rivets.bind($('#model'), {
-        model: model
-    });
+            e.clearSelection();
+        });
 
-    var clipboard = new Clipboard('.btn');
-
-    clipboard.on('success', function (e) {
-        console.info('Action:', e.action);
-        console.info('Text:', e.text);
-        console.info('Trigger:', e.trigger);
-
-        e.clearSelection();
-    });
-
-    clipboard.on('error', function (e) {
-        console.error('Action:', e.action);
-        console.error('Trigger:', e.trigger);
-    });
-</script>
+        clipboard.on('error', function (e) {
+            console.error('Action:', e.action);
+            console.error('Trigger:', e.trigger);
+        });
+    </script>
 
 </body>
 </html>
