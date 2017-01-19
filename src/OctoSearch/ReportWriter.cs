@@ -39,6 +39,7 @@ namespace OctoSearch
             }
 
             File.WriteAllText(command.OutputFile, report);
+            Console.WriteLine($"Saved {command.OutputFile}.");
         }
     }
 }
